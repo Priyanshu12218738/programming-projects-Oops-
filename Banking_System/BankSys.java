@@ -5,7 +5,7 @@ public class BankSys {
 
 
 }
-class NewAddress{
+class Address{
     private String street;
     private String city;
     private String state;
@@ -38,45 +38,17 @@ abstract class Person{
     public String getName(){return name;}
     public String getContactInfo(){return  "Phone number:"+phone+"\n"+"Email id: "+email;}
 
+
 }
+
+//Transac
  enum AccountStatus {
     ACTIVE,
     CLOSE,
     FROZEN
 
 }
-enum TransactionStatus{
-    SUCCESS,
-    FAILED,
-    PENDING
-}
 
-abstract class Transaction{
-    private String transactionId;
-    private double amount;
-    private Date timestamp;
-    private TransactionStatus status;
-
-    public Transaction(String transactionId, double amount, Date timestamp, TransactionStatus status, String getDetails) {
-        this.transactionId = transactionId;
-        this.amount = amount;
-        this.timestamp = timestamp;
-        this.status = status;
-
-    }
-
-    public abstract boolean execute();
-
-    public String getDetails(){
-
-        return "ID :"+ transactionId+"\n"+"Amount :"+ amount+"\n"+"Timestamp :"+ timestamp+"\n"+"Status :"+ status;
-    }
-
-    protected void setStatus(TransactionStatus status){
-        this.status = status;
-    }
-
-}
 
 
 //2.2 Customer extends Person
@@ -113,7 +85,38 @@ class Customer extends Person{
         }
         return totalBalance;
     }
+}
 
+//2.3 Employee extends Person
+enum Role{
+    TELLER,
+    MANAGER,
+    ADMIN
+}
+enum AccountType{
+    SAVINGS,
+    CURRENT,
+    FIXDEPOSIT
+}
+class Employee extends Person{
+
+    private String employeeID;
+    private  Role role;
+
+    Employee(String id, String name, Address address, String phone, String email,String employeeID, Role role){
+        super(id, name, address, phone, email);
+        this.employeeID = employeeID;
+        this.role = role;
+
+    }
+
+    public Account openAccount(Customer customer, AccountType type){
+
+    }
+    public void closeAccount(String accountID){
+
+    }
+    public void approveLoan(String loadId){}
 
 }
 abstract class  Account{
@@ -270,4 +273,73 @@ class FixedDepositAccount extends Account {
     }
 }
 
+//4. Transaction Hierarchy
 
+//4.1 Transaction (abstract class), created.
+enum TransactionStatus{
+    SUCCESS,
+    FAILED,
+    PENDING
+}
+
+abstract class Transaction{
+    private String transactionId;
+    private double amount;
+    private Date timestamp;
+    private TransactionStatus status;
+
+    public Transaction(String transactionId, double amount, Date timestamp, TransactionStatus status, String getDetails) {
+        this.transactionId = transactionId;
+        this.amount = amount;
+        this.timestamp = timestamp;
+        this.status = status;
+
+    }
+
+    public abstract boolean execute();
+
+    public String getDetails(){
+
+        return "ID :"+ transactionId+"\n"+"Amount :"+ amount+"\n"+"Timestamp :"+ timestamp+"\n"+"Status :"+ status;
+    }
+
+    protected void setStatus(TransactionStatus status){
+        this.status = status;
+    }
+
+}
+
+
+
+//4.2 Concrete transactions
+
+class DepositTransaction extends Transaction{
+
+    private Account targetAccount;
+    DepositTransaction(String transactionId, double amount, Date timestamp, TransactionStatus status, Account targetAccount){
+        super();
+        this.targetAccount = targetAccount;
+    }
+
+    public boolean execute(){}
+
+}
+class WithDrawlTransaction extends Transaction{
+    private Account sourceAccount;
+    WithDrawlTransaction(String transactionId, double amount, Date timestamp, TransactionStatus status, Account sourceAccount){
+        super(transactionId,)
+        this.sourceAccount = sourceAccount;
+
+    }
+    boolean execute(){};
+}
+
+class TransferTransaction extends Transaction{
+    private Account sourceAccount;
+    private Account targetAccount;
+    TransferTransaction(String transactionId, double amount, Date timestamp, TransactionStatus status, Account targetAccount , Account sourceAccount){
+        this.sourceAccount = sourceAccount;
+        this.targetAccount = targetAccount;
+    }
+    boolean execute(){}
+}
