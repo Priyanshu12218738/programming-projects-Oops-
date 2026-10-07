@@ -1,5 +1,4 @@
 package Banking_System;
-import java.time.LocalDate;
 import java.util.*;
 public class BankSys {
 
@@ -138,13 +137,15 @@ abstract class  Account{
     }
 
 
-    public void deposit(double amount){
+    public boolean deposit(double amount){
 
         if(amount>0){
             balance += amount;
+            return true;
         }
+            return false;
     }
-    abstract void withdraw(double amount);
+    abstract boolean withdraw(double amount);
 
     public double getBalance(){
         return balance;
@@ -184,13 +185,17 @@ class SavingAccount extends Account{
         this.minBalance  = minBalance;
 
     }
-    public void withdraw(double amount){
+
+    public boolean withdraw(double amount){
         //minbalance > amount.
 
         if( amount >0 && getBalance() -amount < minBalance){
             updatedBalance(amount);
+            return true;
         }
+        return false;
     }
+
     public double calculateInterest(){
         return getBalance()*interestRate;
     }
@@ -205,11 +210,15 @@ class CurrentAccount extends Account{
         this.overdraftLimit = overdraftLimit;
     }
 
-    void withdraw(double amount){
+    public boolean withdraw(double amount){
         //-ve balance, limit.
         if(amount> 0 && getBalance() - amount>= -overdraftLimit) {
             updatedBalance(amount);
+            return true;
         }
+
+        return false;
+
 
     }
     double calculateInterest(){
@@ -244,17 +253,22 @@ class FixedDepositAccount extends Account {
     }
 
     @Override
-    public void withdraw(double amount) {
+    public boolean withdraw(double amount) {
 
         Date today = new Date();
 
         if (today.before(maturityDate)) {
             throw new RuntimeException("FD is not matured yet");
+
+
         }
 
         if (amount > 0) {
             updatedBalance(amount);
+            return true;
         }
+        return false;
+
     }
 
     @Override
@@ -288,11 +302,11 @@ abstract class Transaction{
     private Date timestamp;
     private TransactionStatus status;
 
-    public Transaction(String transactionId, double amount, Date timestamp, TransactionStatus status, String getDetails) {
+    public Transaction(String transactionId, double amount, Date timestamp) {
         this.transactionId = transactionId;
         this.amount = amount;
         this.timestamp = timestamp;
-        this.status = status;
+        this.status = TransactionStatus.PENDING;
 
     }
 
@@ -307,6 +321,10 @@ abstract class Transaction{
         this.status = status;
     }
 
+    public double getAmount(){
+        return amount;
+    }
+
 }
 
 
@@ -316,30 +334,59 @@ abstract class Transaction{
 class DepositTransaction extends Transaction{
 
     private Account targetAccount;
-    DepositTransaction(String transactionId, double amount, Date timestamp, TransactionStatus status, Account targetAccount){
-        super();
+    public DepositTransaction(String transactionId, double amount, Date timestamp,  Account targetAccount) {
+        super(transactionId, amount, timestamp );
         this.targetAccount = targetAccount;
     }
+    @Override
+    public boolean execute(){
 
-    public boolean execute(){}
+
+        if(targetAccount.deposit(getAmount())){
+           setStatus(TransactionStatus.SUCCESS);
+           return true;
+
+       }
+       else{
+           setStatus(TransactionStatus.FAILED);
+           return false;
+       }
+
+    }
 
 }
-class WithDrawlTransaction extends Transaction{
+
+class WithdrawTransaction extends Transaction{
     private Account sourceAccount;
-    WithDrawlTransaction(String transactionId, double amount, Date timestamp, TransactionStatus status, Account sourceAccount){
-        super(transactionId,)
+    WithdrawTransaction(String transactionId, double amount, Date timestamp, TransactionStatus status, Account sourceAccount){
+        super(transactionId,amount, timestamp);
         this.sourceAccount = sourceAccount;
 
     }
-    boolean execute(){};
+    @Override
+    public boolean execute(){
+        if(sourceAccount.withdraw((getAmount()))){
+            setStatus(TransactionStatus.SUCCESS);
+            return true;
+        }
+        else{
+            setStatus(TransactionStatus.FAILED);
+
+        }
+        return false;
+    }
 }
 
 class TransferTransaction extends Transaction{
     private Account sourceAccount;
     private Account targetAccount;
     TransferTransaction(String transactionId, double amount, Date timestamp, TransactionStatus status, Account targetAccount , Account sourceAccount){
+        super(transactionId, amount, timestamp);
         this.sourceAccount = sourceAccount;
         this.targetAccount = targetAccount;
     }
-    boolean execute(){}
+    @Override
+    public boolean execute(){
+
+    }
 }
