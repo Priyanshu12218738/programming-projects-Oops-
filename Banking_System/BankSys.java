@@ -327,8 +327,6 @@ abstract class Transaction{
 
 }
 
-
-
 //4.2 Concrete transactions
 
 class DepositTransaction extends Transaction{
@@ -344,11 +342,13 @@ class DepositTransaction extends Transaction{
 
         if(targetAccount.deposit(getAmount())){
            setStatus(TransactionStatus.SUCCESS);
+           targetAccount.addTransaction(this);
            return true;
 
        }
        else{
            setStatus(TransactionStatus.FAILED);
+           targetAccount.addTransaction(this);
            return false;
        }
 
@@ -358,7 +358,7 @@ class DepositTransaction extends Transaction{
 
 class WithdrawTransaction extends Transaction{
     private Account sourceAccount;
-    WithdrawTransaction(String transactionId, double amount, Date timestamp, TransactionStatus status, Account sourceAccount){
+    WithdrawTransaction(String transactionId, double amount, Date timestamp, Account sourceAccount){
         super(transactionId,amount, timestamp);
         this.sourceAccount = sourceAccount;
 
@@ -367,10 +367,12 @@ class WithdrawTransaction extends Transaction{
     public boolean execute(){
         if(sourceAccount.withdraw((getAmount()))){
             setStatus(TransactionStatus.SUCCESS);
+            sourceAccount.addTransaction(this);
             return true;
         }
         else{
             setStatus(TransactionStatus.FAILED);
+            sourceAccount.addTransaction(this);
 
         }
         return false;
@@ -380,7 +382,7 @@ class WithdrawTransaction extends Transaction{
 class TransferTransaction extends Transaction{
     private Account sourceAccount;
     private Account targetAccount;
-    TransferTransaction(String transactionId, double amount, Date timestamp, TransactionStatus status, Account targetAccount , Account sourceAccount){
+    TransferTransaction(String transactionId, double amount, Date timestamp, Account targetAccount , Account sourceAccount){
         super(transactionId, amount, timestamp);
         this.sourceAccount = sourceAccount;
         this.targetAccount = targetAccount;
@@ -388,5 +390,56 @@ class TransferTransaction extends Transaction{
     @Override
     public boolean execute(){
 
+        if(sourceAccount.withdraw((getAmount()))){
+
+
+
+            if(targetAccount.deposit(getAmount())){
+                setStatus(TransactionStatus.SUCCESS);
+                sourceAccount.addTransaction(this);
+                targetAccount.addTransaction(this);
+
+                return true;
+            }
+            else {
+                sourceAccount.deposit(getAmount());
+                setStatus(TransactionStatus.FAILED);
+                sourceAccount.addTransaction(this);
+                targetAccount.addTransaction(this);
+                return false;
+            }
+
+        }
+        else{
+
+            setStatus(TransactionStatus.FAILED);
+            sourceAccount.addTransaction(this);
+
+        }
+        return false;
+
+
+    }
+
+}
+
+
+//5. Supporting Design Patterns
+
+//5.1 Bank — Singleton
+
+//5.2 AccountFactory — Factory Pattern
+class  AccountFactory{
+
+    public static Account createAccount(AccountType type, Customer customer){
+
+        switch (type){
+            case SAVINGS -> Account acc = new Account(customer);
+
+            case FIXDEPOSIT -> Person acc = new  Person(customer);
+
+            case SAVINGS ->  Employee acc = new  Employee(customer);
+
+        }
     }
 }
