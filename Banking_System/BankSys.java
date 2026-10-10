@@ -1,9 +1,9 @@
 package Banking_System;
 import java.util.*;
-public class BankSys {
+import java.util.Date;
+import java.util.UUID;
 
 
-}
 class Address{
     private String street;
     private String city;
@@ -95,7 +95,7 @@ enum Role{
 enum AccountType{
     SAVINGS,
     CURRENT,
-    FIXDEPOSIT
+    FIXED_DEPOSIT, FIXDEPOSIT
 }
 class Employee extends Person{
 
@@ -431,15 +431,89 @@ class TransferTransaction extends Transaction{
 //5.2 AccountFactory — Factory Pattern
 class  AccountFactory{
 
-    public static Account createAccount(AccountType type, Customer customer){
+    public static Account createAccount(AccountType type, Customer customer) {
 
-        switch (type){
-            case SAVINGS -> Account acc = new Account(customer);
+        String accountNumber = UUID.randomUUID().toString();
+        double openingBalance = 0.0;
+        AccountStatus status = AccountStatus.ACTIVE;
+        Date createdDate = new Date();
 
-            case FIXDEPOSIT -> Person acc = new  Person(customer);
+        switch (type) {
 
-            case SAVINGS ->  Employee acc = new  Employee(customer);
+            case SAVINGS:
+                return new SavingAccount(
+                        accountNumber,
+                        openingBalance,
+                        customer,
+                        status,
+                        createdDate,
+                        0.04,   // Example interest rate: 4%
+                        1000.0  // Example minimum balance
+                );
 
+            case CURRENT:
+                return new CurrentAccount(
+                        accountNumber,
+                        openingBalance,
+                        customer,
+                        status,
+                        createdDate,
+                        5000.0  // Example overdraft limit
+                );
+
+            case FIXED_DEPOSIT:
+                int tenureMonths = 12;
+                double interestRate = 0.07; // Example: 7%
+
+                Date maturityDate = new Date(
+                        System.currentTimeMillis()
+                                + tenureMonths * 30L * 24 * 60 * 60 * 1000
+                );
+
+                return new FixedDepositAccount(
+                        accountNumber,
+                        openingBalance,
+                        customer,
+                        status,
+                        createdDate,
+                        maturityDate,
+                        interestRate,
+                        tenureMonths
+                );
+
+            default:
+                throw new IllegalArgumentException("Invalid account type");
         }
     }
+}
+
+class BankSys {
+        private  static BankSys instance;
+//      private  static int     x       ;
+        private Map<String, Customer> customers;
+        private Map<String, Account> acconts;
+
+        private  BankSys(){
+            customers = new HashMap<>();
+            acconts = new HashMap<>();
+            System.out.println("Bank is created:");
+        }
+
+        public static BankSys getInstance(){
+
+            if(instance == null){
+                 instance = new BankSys();
+            }
+            return instance;
+        }
+
+        public void registerCustomer(Customer c){
+            customers.put(c.getId(), c);
+        }
+        public Account findAccount(String accountNumber){
+
+        }
+        public boolean transferMoney(){
+
+        }
 }
