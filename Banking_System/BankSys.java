@@ -62,6 +62,7 @@ class Customer extends Person{
     }
 
     public void addAccount(Account account){
+
         accounts.add(account);
     }
     public void removeAccount(String accountId){
@@ -109,7 +110,14 @@ class Employee extends Person{
 
     }
 
-    public Account openAccount(Customer customer, AccountType type){
+    public Account openAccount(AccountType type ,Customer customer){
+        Account newAccount =  AccountFactory.createAccount(type, customer);
+        if(!BankSys.getInstance().registerAccount(newAccount)){
+            return null;
+
+        }
+        customer.addAccount(newAccount);
+        return newAccount;
 
     }
     public void closeAccount(String accountID){
@@ -507,13 +515,53 @@ class BankSys {
             return instance;
         }
 
-        public void registerCustomer(Customer c){
-            customers.put(c.getId(), c);
+            public boolean registerCustomer(Customer c){
+                if(customers.containsKey(c.getId())) {
+                    System.out.println("Customer already exist");
+                    return false;
+                }
+                else{
+                    customers.put(c.getId(), c);
+                    return true;
+
+                }
+
+
+
+
+            }
+            public boolean registerAccount(Account a){
+                if(acconts.containsKey(a.getAccountNo())){
+                    System.out.println("Account already exist");
+                    return false;
+
+                }
+                else {
+                     acconts.put(a.getAccountNo(), a);
+                    return true;
+                }
+
         }
+
+
         public Account findAccount(String accountNumber){
 
-        }
-        public boolean transferMoney(){
+            return acconts.get(accountNumber);
 
+        }
+        public boolean transferMoney(Account sourceAccount , Account targetAccount , double amount){
+
+            Date date = new Date();
+            String txnId = UUID.randomUUID().toString();
+            if(sourceAccount != null && targetAccount != null){
+                if(amount > 0){
+
+                    TransferTransaction t = new TransferTransaction(txnId, amount,date, targetAccount,sourceAccount);
+
+                    return t.execute();
+                }
+
+            }
+            return false;
         }
 }
