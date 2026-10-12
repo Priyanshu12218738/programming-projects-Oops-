@@ -43,7 +43,7 @@ abstract class Person{
 //Transac
  enum AccountStatus {
     ACTIVE,
-    CLOSE,
+    CLOSED,
     FROZEN
 
 }
@@ -98,6 +98,7 @@ enum AccountType{
     CURRENT,
     FIXED_DEPOSIT, FIXDEPOSIT
 }
+
 class Employee extends Person{
 
     private String employeeID;
@@ -120,12 +121,34 @@ class Employee extends Person{
         return newAccount;
 
     }
-    public void closeAccount(String accountID){
+    public void closeAccount(String accountID) {
+        Account account = BankSys.getInstance().findAccount(accountID);
 
+        if (account == null) {
+            System.out.println("Account not found");
+            return;
+        }
+
+        if (account.getStatus() == AccountStatus.CLOSED) {
+            System.out.println("Account is already closed");
+            return;
+        }
+
+        if (account.getBalance() != 0) {
+            System.out.println("Balance is not zero! Cannot close.");
+            return;
+        }
+
+        account.setStatus(AccountStatus.CLOSED);
+        System.out.println("Account closed successfully");
     }
+
     public void approveLoan(String loadId){}
 
 }
+
+//3. Account Hierarchy (Abstraction + Inheritance + Polymorphism)
+//3.1 Account (abstract class)
 abstract class  Account{
 
     protected String accountNumber;
@@ -140,8 +163,17 @@ abstract class  Account{
         this.balance = balance;
         this.owner = owner;
         this.status = status;
-        this.createDate = createDate;
+        this.createdDate = createdDate;
         this.transactions = new ArrayList<>();
+    }
+        //encapsulate status.
+    protected void setStatus(AccountStatus status){
+
+        this.status = status;
+    }
+
+    protected AccountStatus getStatus(){
+        return this.status;
     }
 
 
@@ -496,14 +528,16 @@ class  AccountFactory{
 }
 
 class BankSys {
+
+    static void main(){}
         private  static BankSys instance;
 //      private  static int     x       ;
         private Map<String, Customer> customers;
-        private Map<String, Account> acconts;
+        private Map<String, Account> accounts;
 
         private  BankSys(){
             customers = new HashMap<>();
-            acconts = new HashMap<>();
+            accounts = new HashMap<>();
             System.out.println("Bank is created:");
         }
 
@@ -515,7 +549,29 @@ class BankSys {
             return instance;
         }
 
-            public boolean registerCustomer(Customer c){
+    public void closeAccount(String accountID) {
+        Account accountCopy = BankSys.getInstance().findAccount(accountID);
+
+        if (accountCopy == null) {
+            System.out.println("Account not found");
+            return;
+        }
+
+        if (accountCopy.getBalance() != 0) {
+            System.out.println("Balance is not zero! Cannot close.");
+            return;
+        }
+
+        if (accountCopy.getStatus() == AccountStatus.CLOSED) {
+            System.out.println("Account is already closed");
+            return;
+        }
+
+        accountCopy.setStatus(AccountStatus.CLOSED);
+        System.out.println("Account closed successfully");
+    }
+
+    public boolean registerCustomer(Customer c){
                 if(customers.containsKey(c.getId())) {
                     System.out.println("Customer already exist");
                     return false;
@@ -527,26 +583,23 @@ class BankSys {
                 }
 
 
-
-
             }
             public boolean registerAccount(Account a){
-                if(acconts.containsKey(a.getAccountNo())){
+                if(accounts.containsKey(a.getAccountNo())){
                     System.out.println("Account already exist");
                     return false;
 
                 }
                 else {
-                     acconts.put(a.getAccountNo(), a);
+                     accounts.put(a.getAccountNo(), a);
                     return true;
                 }
 
         }
 
-
         public Account findAccount(String accountNumber){
 
-            return acconts.get(accountNumber);
+            return accounts.get(accountNumber);
 
         }
         public boolean transferMoney(Account sourceAccount , Account targetAccount , double amount){
