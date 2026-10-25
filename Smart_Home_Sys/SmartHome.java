@@ -11,13 +11,19 @@ enum ConnectivityStatus{
     OFFLINE
 }
 
+enum LightColorMode{
+    WARM,
+    COOL,
+    RGB
+}
+
 abstract class SmartDevice{
-    String id;
-    String name;
-    DeviceStatus status;
-    ConnectivityStatus connectivity;
-    double ratedPowerWatts;
-    LocalDateTime createdAt;
+    private String id;
+    private String name;
+    private DeviceStatus status;
+    private ConnectivityStatus connectivity;
+    private double ratedPowerWatts;
+    private LocalDateTime createdAt;
 
     public SmartDevice(String id,
                        String name,
@@ -34,36 +40,52 @@ abstract class SmartDevice{
         this.createdAt = createdAt;
     }
 
-    private String getId(){
+     String getId(){
         return id;
     }
-    private String getName(){
+     String getName(){
         return name;
     }
-    private DeviceStatus getStatus(){
+     DeviceStatus getStatus(){
         return status;
     }
-    private ConnectivityStatus getConnectivity(){
+     ConnectivityStatus getConnectivity(){
         return connectivity;
     }
-    private void turnOn(){
+
+     double getEnergyUsageKWh(double hours){
 
     }
-    private void turnOf(){
+     String getDetails(){
 
     }
-    private double getEnergyUsageKWh(double hours){
 
+    public void turnOn(){
+        ensureOnline();
+        validateCanTurnOn();
+        this.status = DeviceStatus.ON;
     }
-    private String getDetais(){
 
+    public void setConnectivity(ConnectivityStatus connectivity) {
+        this.connectivity = connectivity;
+    }
+
+    public void turnOff(){
+        ensureOnline();
+
+        this.status = DeviceStatus.OFF;
     }
     protected void ensureOnline(){
-
+        if(this.connectivity== ConnectivityStatus.OFFLINE){
+            throw  new IllegalStateException("Device Is offline");
+        }
     }
     protected void validateCanTurnOn(){
-
+            if(this.status==DeviceStatus.ON){
+                throw new IllegalStateException("This device is Already ON");
+            }
     }
+
 
 }
 
