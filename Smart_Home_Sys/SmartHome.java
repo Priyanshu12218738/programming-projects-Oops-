@@ -17,6 +17,11 @@ enum LightColorMode{
     RGB
 }
 
+//2.1 SmartHome
+public class SmartHome {
+}
+
+//2.3 SmartDevice (abstract base class)
 abstract class SmartDevice{
     private String id;
     private String name;
@@ -53,12 +58,8 @@ abstract class SmartDevice{
         return connectivity;
     }
 
-     double getEnergyUsageKWh(double hours){
 
-    }
-     String getDetails(){
 
-    }
 
     public void turnOn(){
         ensureOnline();
@@ -85,11 +86,73 @@ abstract class SmartDevice{
                 throw new IllegalStateException("This device is Already ON");
             }
     }
+    String getDetails(){
+        return "Device ID:" + id+ "\n" +
+                "Name: "+ name +  "\n"+
+                "Status: " + status +"\n"+
+                "Connectivity: "+connectivity +"\n"+
+                "Rated Power: "+ ratedPowerWatts +"\n";
+    }
+    double getEnergyUsageKWh(double hours){
+        if(hours<0){
+            throw new IllegalArgumentException("Invalid input hour");
+        }
+        double energy = ratedPowerWatts * hours/1000;
+        return energy;
+
+    }
+
+
 
 
 }
 
 
+//2.4 SmartLight extends SmartDevice
+class SmartLight extends SmartDevice{
 
-public class SmartHome {
+    private int brigntness=0;
+    private LightColorMode  colorMode;
+    public SmartLight(String id, String name, DeviceStatus status, ConnectivityStatus connectivity, double ratedPowerWatts, LocalDateTime createdAt) {
+        super(id, name, status, connectivity, ratedPowerWatts, createdAt);
+
+        this.brigntness = 0;
+        this.colorMode = LightColorMode.COOL;
+
+    }
+
+    public void setBrightness(int value){
+        if(value >= 0 && value <= 100){
+            this.brigntness = value;
+        }
+        else throw new IllegalArgumentException("Brightness not valid");
+    }
+
+    public int getBrigntness(){
+        return brigntness;
+    }
+    public void setColorMode(LightColorMode mode){
+        this.colorMode = mode;
+    }
+    public LightColorMode getColorMode(){
+        return this.colorMode;
+    }
+
+    @Override
+    public String getDetails(){
+        return super.getDetails() + "\n"+
+                "Brightness" + brigntness +"\n"+
+                "Colour Mode"+ colorMode ;
+
+    }
+    @Override
+    double getEnergyUsageKWh(double hours){
+        return super.getEnergyUsageKWh(hours) * brigntness/100.0;
+
+    }
 }
+
+
+
+
+
