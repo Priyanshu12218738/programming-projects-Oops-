@@ -111,7 +111,7 @@ abstract class SmartDevice{
 //2.4 SmartLight extends SmartDevice
 class SmartLight extends SmartDevice{
 
-    private int brigntness=0;
+    private int brigntness;
     private LightColorMode  colorMode;
     public SmartLight(String id, String name, DeviceStatus status, ConnectivityStatus connectivity, double ratedPowerWatts, LocalDateTime createdAt) {
         super(id, name, status, connectivity, ratedPowerWatts, createdAt);
@@ -132,7 +132,14 @@ class SmartLight extends SmartDevice{
         return brigntness;
     }
     public void setColorMode(LightColorMode mode){
-        this.colorMode = mode;
+
+        if(mode == null){
+            throw new IllegalArgumentException("Input valid colour");
+        }
+        else{
+            this.colorMode = mode;
+        }
+
     }
     public LightColorMode getColorMode(){
         return this.colorMode;
@@ -146,7 +153,7 @@ class SmartLight extends SmartDevice{
 
     }
     @Override
-    double getEnergyUsageKWh(double hours){
+    public double getEnergyUsageKWh(double hours){
         return super.getEnergyUsageKWh(hours) * brigntness/100.0;
 
     }
