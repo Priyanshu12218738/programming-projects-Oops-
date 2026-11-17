@@ -43,6 +43,10 @@ class Employee {
     public void setDepartment(String department) {
          this.department = department;
     }
+
+    public double calculateSalary(){
+        return 0.0;
+    }
 }
 
 //Lesson 2: EmployeeService
@@ -126,6 +130,79 @@ class EmployeeService{
     }
 
 }
+
+
+public class PermanentEmployee extends Employee {
+
+    private double monthlySalary;
+
+    public PermanentEmployee(int employeeId, String name,
+                             String email, String department, double monthlySalary) {
+
+        super(employeeId, name, email, department);
+
+        if (monthlySalary < 0) {
+            throw new IllegalArgumentException("Salary cannot be negative");
+        }
+        this.monthlySalary = monthlySalary;
+    }
+
+    @Override
+    public double calculateSalary() {
+            return monthlySalary;
+    }
+}
+
+
+
+public class ContractEmployee extends Employee {
+
+
+    private double workingHours;
+    private double hourlyRate;
+    public ContractEmployee(int employeeId, String name,
+                             String email, String department, double workingHours, double hourlyRate) {
+
+        super(employeeId, name, email, department);
+
+        if (workingHours < 0 || hourlyRate < 0) {
+            throw new IllegalArgumentException(
+                    "Salary and hours cannot be negative"
+            );
+        }
+        this.workingHours = workingHours;
+        this.hourlyRate = hourlyRate;
+
+    }
+
+    @Override
+    public double calculateSalary() {
+        return hourlyRate*workingHours;
+    }
+}
+
+public class InternEmployee extends Employee {
+
+    private double monthlyStipend;
+    public InternEmployee(int employeeId, String name,
+                             String email, String department, double monthlyStipend ) {
+
+        super(employeeId, name, email, department);
+
+        if (monthlyStipend < 0) {
+            throw new IllegalArgumentException(
+                    "Stipend cannot be negative"
+            );
+        }
+        this.monthlyStipend = monthlyStipend;
+    }
+
+    @Override
+    public double calculateSalary() {
+        return monthlyStipend;
+    }
+}
+
 
 
 public  void main() {
