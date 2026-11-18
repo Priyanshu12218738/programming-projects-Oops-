@@ -49,7 +49,7 @@ class Employee {
     }
 }
 
-//Lesson 2: EmployeeService
+//Phase 2: EmployeeService
 class EmployeeService{
 
     private ArrayList<Employee> employees;
@@ -131,7 +131,8 @@ class EmployeeService{
 
 }
 
-
+//Phase 3 — Employee Types
+//Lessons: calculateSalary,
 public class PermanentEmployee extends Employee {
 
     private double monthlySalary;
@@ -152,8 +153,6 @@ public class PermanentEmployee extends Employee {
             return monthlySalary;
     }
 }
-
-
 
 public class ContractEmployee extends Employee {
 
@@ -207,30 +206,72 @@ public class InternEmployee extends Employee {
 
 public  void main() {
 
-    EmployeeService service = new EmployeeService();
+// Testing: Phase 2
+//  Lessongs: Polymorphism
 
-// Create employees
-    Employee e1 = new Employee(101, "Rahul", "rahul@gmail.com", "IT");
-    Employee e2 = new Employee(102, "Priya", "priya@gmail.com", "HR");
+//    EmployeeService service = new EmployeeService();
+//
+//// Create employees
+//    Employee e1 = new Employee(101, "Rahul", "rahul@gmail.com", "IT");
+//    Employee e2 = new Employee(102, "Priya", "priya@gmail.com", "HR");
+//
+//// Add employees
+//    service.addEmployee(e1);
+//    service.addEmployee(e2);
+//
+//// Display employees
+//    service.displayEmployees();
+//
+//// Search employee
+//    Employee result = service.searchEmployee(101);
+//
+//// Update department
+//    service.updateDepartment(101, "Finance");
+//
+//// Delete employee
+//    service.deleteEmployee(102);
+//
+//// Display final list
+//    service.displayEmployees();
 
-// Add employees
-    service.addEmployee(e1);
-    service.addEmployee(e2);
+//Testing: phase 3
+//    Lessons: Runtime Polymorphism(refrence-> same, object->different, method override)
+//    Employee e1 = new PermanentEmployee(
+//            101, "Rahul", "rahul@gmail.com", "IT", 30000
+//    );
+//
+//    Employee e2 = new ContractEmployee(
+//            102, "Priya", "priya@gmail.com", "HR", 160, 200
+//    );
+//
+//    Employee e3 = new InternEmployee(
+//            103, "Aman", "aman@gmail.com", "IT", 10000
+//    );
+//
+//    System.out.println(e1.calculateSalary());
+//    System.out.println(e2.calculateSalary());
+//    System.out.println(e3.calculateSalary());
 
-// Display employees
-    service.displayEmployees();
+//    lesson Polymorphism with ArrayList
+    ArrayList<Employee> employees = new ArrayList<>();
 
-// Search employee
-    Employee result = service.searchEmployee(101);
+    employees.add(new PermanentEmployee(
+            101, "Rahul", "rahul@gmail.com", "IT", 30000
+    ));
 
-// Update department
-    service.updateDepartment(101, "Finance");
+    employees.add(new ContractEmployee(
+            102, "Priya", "priya@gmail.com", "HR", 160, 200
+    ));
 
-// Delete employee
-    service.deleteEmployee(102);
+    employees.add(new InternEmployee(
+            103, "Aman", "aman@gmail.com", "IT", 10000
+    ));
 
-// Display final list
-    service.displayEmployees();
+    for (Employee emp : employees) {
+        System.out.println(
+                emp.getName() + " Salary: " + emp.calculateSalary()
+        );
+    }
 
 }
 
