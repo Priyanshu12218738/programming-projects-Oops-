@@ -82,7 +82,9 @@ class EmployeeService{
         for (Employee emp : this.employees) {
             System.out.println("ID: " + emp.getEmployeeId() +
                     ", Name: " + emp.getName() +
-                    ", Dept: " + emp.getDepartment());
+                    ", Dept: " + emp.getDepartment()+
+//Runtime Polymorphism + Low Coupling.
+                    ", Salary: "+ emp.calculateSalary());
         }
     }
 
@@ -253,25 +255,49 @@ public  void main() {
 //    System.out.println(e3.calculateSalary());
 
 //    lesson Polymorphism with ArrayList
-    ArrayList<Employee> employees = new ArrayList<>();
+//    ArrayList<Employee> employees = new ArrayList<>();
+//
+//    employees.add(new PermanentEmployee(
+//            101, "Rahul", "rahul@gmail.com", "IT", 30000
+//    ));
+//
+//    employees.add(new ContractEmployee(
+//            102, "Priya", "priya@gmail.com", "HR", 160, 200
+//    ));
+//
+//    employees.add(new InternEmployee(
+//            103, "Aman", "aman@gmail.com", "IT", 10000
+//    ));
+//
+//    for (Employee emp : employees) {
+//        System.out.println(
+//                emp.getName() + " Salary: " + emp.calculateSalary()
+//        );
+//    }
 
-    employees.add(new PermanentEmployee(
-            101, "Rahul", "rahul@gmail.com", "IT", 30000
-    ));
+//    lesson: Integrate Employee Types with EmployeeService
+    EmployeeService service = new EmployeeService();
 
-    employees.add(new ContractEmployee(
-            102, "Priya", "priya@gmail.com", "HR", 160, 200
-    ));
+    service.addEmployee(
+            new PermanentEmployee(
+                    101, "Rahul", "rahul@gmail.com", "IT", 30000
+            )
+    );
 
-    employees.add(new InternEmployee(
-            103, "Aman", "aman@gmail.com", "IT", 10000
-    ));
+    service.addEmployee(
+            new ContractEmployee(
+                    102, "Priya", "priya@gmail.com", "HR", 160, 200
+            )
+    );
 
-    for (Employee emp : employees) {
-        System.out.println(
-                emp.getName() + " Salary: " + emp.calculateSalary()
-        );
-    }
+    service.addEmployee(
+            new InternEmployee(
+                    103, "Aman", "aman@gmail.com", "IT", 10000
+            )
+    );
+
+    service.displayEmployees();
+
 
 }
 
