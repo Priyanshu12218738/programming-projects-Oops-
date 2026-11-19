@@ -204,7 +204,39 @@ public class InternEmployee extends Employee {
     }
 }
 
+//Phase 4: Salary Calculation Design
+//lesson: SalaryCalculator Design
+public class SalaryCalculator {
 
+
+    public double calculate(Employee employee){
+        if (employee == null) {
+            throw new IllegalArgumentException("Employee cannot be null");
+        }
+        return employee.calculateSalary();
+    }
+}
+
+//Lesson: OCP
+public class FreelanceEmployee extends Employee {
+
+    private double hourlyRate;
+    private double totalHours;
+
+    public FreelanceEmployee(int employeeId, String name,
+                             String email, String department,
+                             double hourlyRate, double totalHours) {
+
+        super(employeeId, name, email, department);
+        this.hourlyRate = hourlyRate;
+        this.totalHours = totalHours;
+    }
+
+    @Override
+    public double calculateSalary() {
+        return hourlyRate * totalHours;
+    }
+}
 
 public  void main() {
 
@@ -276,28 +308,54 @@ public  void main() {
 //    }
 
 //    lesson: Integrate Employee Types with EmployeeService
-    EmployeeService service = new EmployeeService();
+//    EmployeeService service = new EmployeeService();
+//
+//    service.addEmployee(
+//            new PermanentEmployee(
+//                    101, "Rahul", "rahul@gmail.com", "IT", 30000
+//            )
+//    );
+//
+//    service.addEmployee(
+//            new ContractEmployee(
+//                    102, "Priya", "priya@gmail.com", "HR", 160, 200
+//            )
+//    );
+//
+//    service.addEmployee(
+//            new InternEmployee(
+//                    103, "Aman", "aman@gmail.com", "IT", 10000
+//            )
+//    );
+//
+//    service.displayEmployees();
 
-    service.addEmployee(
-            new PermanentEmployee(
-                    101, "Rahul", "rahul@gmail.com", "IT", 30000
-            )
+//    Phase 4:
+//    lesson:SalaryCalculator Integration
+    SalaryCalculator calculator = new SalaryCalculator();
+
+    Employee e1 = new PermanentEmployee(
+            101, "Rahul", "rahul@gmail.com", "IT", 30000
     );
 
-    service.addEmployee(
-            new ContractEmployee(
-                    102, "Priya", "priya@gmail.com", "HR", 160, 200
-            )
+    Employee e2 = new ContractEmployee(
+            102, "Priya", "priya@gmail.com", "HR", 160, 200
     );
 
-    service.addEmployee(
-            new InternEmployee(
-                    103, "Aman", "aman@gmail.com", "IT", 10000
-            )
+    Employee e3 = new InternEmployee(
+            103, "Aman", "aman@gmail.com", "IT", 10000
     );
 
-    service.displayEmployees();
 
+    System.out.println(calculator.calculate(e1));
+    System.out.println(calculator.calculate(e2));
+    System.out.println(calculator.calculate(e3));
+
+//without modification.
+    Employee emp = new FreelanceEmployee(
+            104, "Amit", "amit@gmail.com", "Design", 500, 40
+    );
+    System.out.println(calculator.calculate(emp));
 
 }
 
