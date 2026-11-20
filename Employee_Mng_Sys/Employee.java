@@ -1,6 +1,8 @@
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.*;
+import java.time.LocalDate;
+
 
 
 
@@ -216,7 +218,6 @@ public class SalaryCalculator {
         return employee.calculateSalary();
     }
 }
-
 //Lesson: OCP
 public class FreelanceEmployee extends Employee {
 
@@ -238,8 +239,129 @@ public class FreelanceEmployee extends Employee {
     }
 }
 
-public  void main() {
+//Phase: 5
+//lesson1: Attendance design
+public enum AttendanceStatus {
+    PRESENT,
+    ABSENT
+}
+//Lesson 2: Implement Attendance.java
+public class Attendance {
 
+    private int employeeId;
+    private LocalDate date;
+    private AttendanceStatus status;
+
+    public Attendance(int employeeId, LocalDate date,
+                      AttendanceStatus status) {
+
+        if (employeeId <= 0) {
+            throw new IllegalArgumentException("Invalid Employee ID");
+        }
+
+        if (date == null || status == null) {
+            throw new IllegalArgumentException("Date and status cannot be null");
+        }
+
+        this.employeeId = employeeId;
+        this.date = date;
+        this.status = status;
+    }
+
+    public int getEmployeeId() {
+        return employeeId;
+    }
+
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public AttendanceStatus getStatus() {
+        return status;
+    }
+}
+//Lesson 3: AttendanceService.java
+public class AttendanceService {
+//  save in List of Attendance
+    private List<Attendance> records;
+//  constructor initialization
+    public AttendanceService() {
+        records = new ArrayList<>();
+    }
+//  Mark Attendance
+    public void markAttendance(Attendance attendance) {
+
+        if (attendance == null) {
+            throw new IllegalArgumentException(
+                    "Attendance cannot be null"
+            );
+        }
+
+//    Lesson 4: Duplicate Attendance Validation
+        for (Attendance record : records) {
+
+            if (record.getEmployeeId() == attendance.getEmployeeId()
+                    && record.getDate().equals(attendance.getDate())) {
+
+                throw new IllegalArgumentException(
+                        "Attendance already marked for this date!"
+                );
+            }
+        }
+        records.add(attendance);
+    }
+
+//    Lesson 5:View Attendance
+public void displayAttendance(int employeeId) {
+
+    boolean found = false;
+
+    for (Attendance record : records) {
+
+        if (record.getEmployeeId() == employeeId) {
+
+            System.out.println("Employee ID: " + record.getEmployeeId());
+            System.out.println("Date: " + record.getDate());
+            System.out.println("Status: " + record.getStatus());
+
+            found = true;
+        }
+    }
+
+    if (!found) {
+        System.out.println("No attendance records found!");
+    }
+}
+//    Lesson 6: Calculate Attendance Summary
+public void attendanceSummary(int employeeId) {
+
+    int presentDays = 0;
+    int absentDays = 0;
+
+    for (Attendance record : records) {
+
+        if (record.getEmployeeId() == employeeId) {
+
+            if (record.getStatus() == AttendanceStatus.PRESENT) {
+                presentDays++;
+            }
+            else if (record.getStatus() == AttendanceStatus.ABSENT) {
+                absentDays++;
+            }
+        }
+    }
+
+    System.out.println("Employee ID: " + employeeId);
+    System.out.println("Present Days: " + presentDays);
+    System.out.println("Absent Days: " + absentDays);
+    System.out.println("Total Days: " + (presentDays + absentDays));
+}
+
+}
+
+
+//public  void main() {
+//
 // Testing: Phase 2
 //  Lessongs: Polymorphism
 
@@ -332,30 +454,53 @@ public  void main() {
 
 //    Phase 4:
 //    lesson:SalaryCalculator Integration
-    SalaryCalculator calculator = new SalaryCalculator();
+//    SalaryCalculator calculator = new SalaryCalculator();
+//
+//    Employee e1 = new PermanentEmployee(
+//            101, "Rahul", "rahul@gmail.com", "IT", 30000
+//    );
+//
+//    Employee e2 = new ContractEmployee(
+//            102, "Priya", "priya@gmail.com", "HR", 160, 200
+//    );
+//
+//    Employee e3 = new InternEmployee(
+//            103, "Aman", "aman@gmail.com", "IT", 10000
+//    );
+//
+//
+//    System.out.println(calculator.calculate(e1));
+//    System.out.println(calculator.calculate(e2));
+//    System.out.println(calculator.calculate(e3));
+//
+////without modification.
+//    Employee emp = new FreelanceEmployee(
+//            104, "Amit", "amit@gmail.com", "Design", 500, 40
+//    );
+//    System.out.println(calculator.calculate(emp));
+//
+//}
 
-    Employee e1 = new PermanentEmployee(
-            101, "Rahul", "rahul@gmail.com", "IT", 30000
+//phase 5
+//Lesson 7: Integration with Main.java
+public void main() {
+    AttendanceService service = new AttendanceService();
+
+    service.markAttendance(
+            new Attendance(101, LocalDate.of(2026, 11, 20),
+                    AttendanceStatus.PRESENT)
     );
 
-    Employee e2 = new ContractEmployee(
-            102, "Priya", "priya@gmail.com", "HR", 160, 200
+    service.markAttendance(
+            new Attendance(101, LocalDate.of(2026, 11, 21),
+                    AttendanceStatus.ABSENT)
     );
 
-    Employee e3 = new InternEmployee(
-            103, "Aman", "aman@gmail.com", "IT", 10000
+    service.markAttendance(
+            new Attendance(101, LocalDate.of(2026, 11, 22),
+                    AttendanceStatus.PRESENT)
     );
 
-
-    System.out.println(calculator.calculate(e1));
-    System.out.println(calculator.calculate(e2));
-    System.out.println(calculator.calculate(e3));
-
-//without modification.
-    Employee emp = new FreelanceEmployee(
-            104, "Amit", "amit@gmail.com", "Design", 500, 40
-    );
-    System.out.println(calculator.calculate(emp));
-
+    service.attendanceSummary(101);
 }
 
