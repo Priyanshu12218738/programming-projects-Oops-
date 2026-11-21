@@ -239,13 +239,13 @@ public class FreelanceEmployee extends Employee {
     }
 }
 
+
 //Phase: 5
-//lesson1: Attendance design
 public enum AttendanceStatus {
     PRESENT,
     ABSENT
 }
-//Lesson 2: Implement Attendance.java
+
 public class Attendance {
 
     private int employeeId;
@@ -280,7 +280,7 @@ public class Attendance {
         return status;
     }
 }
-//Lesson 3: AttendanceService.java
+
 public class AttendanceService {
 //  save in List of Attendance
     private List<Attendance> records;
@@ -359,6 +359,59 @@ public void attendanceSummary(int employeeId) {
 
 }
 
+//phase 6
+public interface Notification {
+    void send(String message);
+}
+public class EmailNotification implements Notification {
+
+    @Override
+    public void send(String message) {
+        System.out.println("Sending Email: " + message);
+    }
+}
+public class SMSNotification implements Notification {
+
+    @Override
+    public void send(String message) {
+        System.out.println("Sending SMS: " + message);
+    }
+}
+public class WhatsAppNotification implements Notification {
+
+    @Override
+    public void send(String message) {
+        System.out.println("Sending WhatsApp: " + message);
+    }
+}
+public class NotificationService {
+
+    private Notification notification;
+
+    public NotificationService(Notification notification) {
+        this.notification = notification;
+    }
+
+    public void notifyEmployee(String message) {
+        notification.send(message);
+    }
+}
+//Main.java – Testing
+
+public  void main(String[] args) {
+
+    Notification email = new EmailNotification();
+    Notification sms = new SMSNotification();
+    Notification whatsapp = new WhatsAppNotification();
+
+    NotificationService service1 = new NotificationService(email);
+    NotificationService service2 = new NotificationService(sms);
+    NotificationService service3 = new NotificationService(whatsapp);
+
+    service1.notifyEmployee("Salary credited!");
+    service2.notifyEmployee("Attendance marked!");
+    service3.notifyEmployee("Welcome!");
+}
 
 //public  void main() {
 //
@@ -483,24 +536,25 @@ public void attendanceSummary(int employeeId) {
 
 //phase 5
 //Lesson 7: Integration with Main.java
-public void main() {
-    AttendanceService service = new AttendanceService();
+//public void main() {
+//    AttendanceService service = new AttendanceService();
+//
+//    service.markAttendance(
+//            new Attendance(101, LocalDate.of(2026, 11, 20),
+//                    AttendanceStatus.PRESENT)
+//    );
+//
+//    service.markAttendance(
+//            new Attendance(101, LocalDate.of(2026, 11, 21),
+//                    AttendanceStatus.ABSENT)
+//    );
+//
+//    service.markAttendance(
+//            new Attendance(101, LocalDate.of(2026, 11, 22),
+//                    AttendanceStatus.PRESENT)
+//    );
+//
+//    service.attendanceSummary(101);
+//}
 
-    service.markAttendance(
-            new Attendance(101, LocalDate.of(2026, 11, 20),
-                    AttendanceStatus.PRESENT)
-    );
-
-    service.markAttendance(
-            new Attendance(101, LocalDate.of(2026, 11, 21),
-                    AttendanceStatus.ABSENT)
-    );
-
-    service.markAttendance(
-            new Attendance(101, LocalDate.of(2026, 11, 22),
-                    AttendanceStatus.PRESENT)
-    );
-
-    service.attendanceSummary(101);
-}
 
