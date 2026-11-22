@@ -386,31 +386,106 @@ public class WhatsAppNotification implements Notification {
 }
 public class NotificationService {
 
-    private Notification notification;
+    private List<Notification> ns;
 
-    public NotificationService(Notification notification) {
-        this.notification = notification;
+    public NotificationService(List<Notification> notifications) {
+        //    Lesson 9: Constructor null Validation
+        if(notifications == null || notifications.isEmpty()){
+            throw new IllegalArgumentException("At least one notification channel is required");
+        }
+        if (notifications.contains(null)) {
+            throw new IllegalArgumentException(
+                    "Notification cannot be null"
+            );
+        }
+        this.ns = new ArrayList<>(notifications);
     }
 
-    public void notifyEmployee(String message) {
-        notification.send(message);
+    public  void notifyEmployee(String message){
+        for(Notification notifications : ns){
+            notifications.send(message);
+        }
+    }
+
+}
+public class PushNotification implements Notification {
+
+    @Override
+    public void send(String message) {
+        System.out.println("Sending Push Notification: " + message);
     }
 }
-//Main.java – Testing
 
+//phase 7;
+//Lesson 5: Understanding DI
 public  void main(String[] args) {
 
-    Notification email = new EmailNotification();
-    Notification sms = new SMSNotification();
-    Notification whatsapp = new WhatsAppNotification();
+//    Lesson 4: NotificationService
+//    Notification email = new EmailNotification();
+//    Notification sms = new SMSNotification();
+//    Notification whatsapp = new WhatsAppNotification();
+//
+//    NotificationService service1 = new NotificationService(email);
+//    NotificationService service2 = new NotificationService(sms);
+//    NotificationService service3 = new NotificationService(whatsapp);
+//
+//    service1.notifyEmployee("Salary credited!");
+//    service2.notifyEmployee("Attendance marked!");
+//    service3.notifyEmployee("Welcome!");
 
-    NotificationService service1 = new NotificationService(email);
-    NotificationService service2 = new NotificationService(sms);
-    NotificationService service3 = new NotificationService(whatsapp);
+//    Lesson 5: Understanding DI
+//    NotificationService service = new NotificationService(new EmailNotification());
+//    service.notifyEmployee("Email Notification");
 
-    service1.notifyEmployee("Salary credited!");
-    service2.notifyEmployee("Attendance marked!");
-    service3.notifyEmployee("Welcome!");
+//    Lesson 6: OCP + DIP + Constructor DI.
+//    Notification push = new PushNotification();
+//    NotificationService service = new NotificationService(push);
+//    service.notifyEmployee("New Update Available");
+
+//    Lesson 7: Multiple Notifications,
+//    List<Notification> channel = Arrays.asList(
+//            new EmailNotification(),
+//            null,
+//            new SMSNotification()
+//    );
+//
+//    NotificationService service = new NotificationService(channel);
+//    service.notifyEmployee("Notification send In all platform");
+
+//    Lesson 10: Integration Testing
+    List<Notification> channels = Arrays.asList(
+            new EmailNotification(),
+            new SMSNotification(),
+            new WhatsAppNotification()
+    );
+
+    NotificationService service = new NotificationService(channels);
+
+    service.notifyEmployee("Salary credited!");
+
+
+}
+//phase 5
+//Lesson 7: Claculate attandance summary.
+public void main() {
+    AttendanceService service = new AttendanceService();
+
+    service.markAttendance(
+            new Attendance(101, LocalDate.of(2026, 11, 20),
+                    AttendanceStatus.PRESENT)
+    );
+
+    service.markAttendance(
+            new Attendance(101, LocalDate.of(2026, 11, 21),
+                    AttendanceStatus.ABSENT)
+    );
+
+    service.markAttendance(
+            new Attendance(101, LocalDate.of(2026, 11, 22),
+                    AttendanceStatus.PRESENT)
+    );
+
+    service.attendanceSummary(101);
 }
 
 //public  void main() {
@@ -534,27 +609,5 @@ public  void main(String[] args) {
 //
 //}
 
-//phase 5
-//Lesson 7: Integration with Main.java
-//public void main() {
-//    AttendanceService service = new AttendanceService();
-//
-//    service.markAttendance(
-//            new Attendance(101, LocalDate.of(2026, 11, 20),
-//                    AttendanceStatus.PRESENT)
-//    );
-//
-//    service.markAttendance(
-//            new Attendance(101, LocalDate.of(2026, 11, 21),
-//                    AttendanceStatus.ABSENT)
-//    );
-//
-//    service.markAttendance(
-//            new Attendance(101, LocalDate.of(2026, 11, 22),
-//                    AttendanceStatus.PRESENT)
-//    );
-//
-//    service.attendanceSummary(101);
-//}
 
 
