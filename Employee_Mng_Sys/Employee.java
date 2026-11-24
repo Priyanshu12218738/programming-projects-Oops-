@@ -2,6 +2,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.*;
 import java.time.LocalDate;
+import java.time.YearMonth;
 
 
 
@@ -207,7 +208,6 @@ public class InternEmployee extends Employee {
 }
 
 //Phase 4: Salary Calculation Design
-//lesson: SalaryCalculator Design
 public class SalaryCalculator {
 
 
@@ -218,7 +218,7 @@ public class SalaryCalculator {
         return employee.calculateSalary();
     }
 }
-//Lesson: OCP
+
 public class FreelanceEmployee extends Employee {
 
     private double hourlyRate;
@@ -417,8 +417,167 @@ public class PushNotification implements Notification {
 }
 
 //phase 7;
-//Lesson 5: Understanding DI
-public  void main(String[] args) {
+public class Payroll {
+
+    private int employeeId;
+    private double salary;
+    private LocalDate payrollDate;
+
+    public Payroll(int employeeId, double salary,
+                   LocalDate payrollDate) {
+
+        if (employeeId <= 0 || salary < 0 || payrollDate == null) {
+            throw new IllegalArgumentException("Invalid input field");
+        }
+
+        this.employeeId = employeeId;
+        this.salary = salary;
+        this.payrollDate = payrollDate;
+    }
+
+    public int getEmployeeId() {
+        return employeeId;
+    }
+
+    public double getSalary() {
+        return salary;
+    }
+
+    public LocalDate getPayrollDate() {
+        return payrollDate;
+    }
+}
+
+public class PayrollService {
+
+    private SalaryCalculator salaryCalculator;
+    private List<Payroll> payrollRecords;
+    private NotificationService notificationService;
+
+
+    public PayrollService(SalaryCalculator salaryCalculator,NotificationService notificationService) {
+        this.salaryCalculator = salaryCalculator;
+        this.payrollRecords = new ArrayList<>();
+        this.notificationService = notificationService;
+
+    }
+
+    public Payroll generatePayroll(Employee employee) {
+
+        if (employee == null) {
+            throw new IllegalArgumentException("Employee not valid");
+        }
+
+        YearMonth currentMonth = YearMonth.now();
+
+        for (Payroll record : payrollRecords) {
+
+            if (record.getEmployeeId() == employee.getEmployeeId()
+                    && YearMonth.from(record.getPayrollDate()).equals(currentMonth)) {
+
+                throw new IllegalArgumentException(
+                        "Payroll already generated for this employee this month!"
+                );
+            }
+        }
+        double salary = salaryCalculator.calculate(employee);
+
+        Payroll payroll = new Payroll(
+                employee.getEmployeeId(),
+                salary,
+                LocalDate.now()
+        );
+
+        payrollRecords.add(payroll);
+        // Send notification only after successful payroll creation
+        notificationService.notifyEmployee(
+                "Payroll generated! Salary: " + salary
+        );
+
+        return payroll;
+    }
+    public void displayPayrollRecords() {
+
+        if (payrollRecords.isEmpty()) {
+            System.out.println("No payroll records found!");
+            return;
+        }
+
+        for (Payroll payroll : payrollRecords) {
+
+            System.out.println("Employee ID: " + payroll.getEmployeeId());
+            System.out.println("Salary: " + payroll.getSalary());
+            System.out.println("Payroll Date: " + payroll.getPayrollDate());
+
+            System.out.println("----------------------");
+        }
+    }
+
+}
+
+
+
+//phase 7
+public void main(String[] args){
+//    SalaryCalculator calculator = new SalaryCalculator();
+//
+//    PayrollService payrollService =
+//            new PayrollService(calculator);
+//
+    Employee e1 = new PermanentEmployee(
+            101, "Rahul", "rahul@gmail.com", "IT", 30000
+    );
+    Employee e2 = new PermanentEmployee(
+            101, "Rahul", "rahul@gmail.com", "IT", 30000
+    );
+
+//    Employee e2 = new ContractEmployee(
+//            102, "Priya", "priya@gmail.com", "HR", 160, 200
+//    );
+//
+//    Employee e3 = new InternEmployee(
+//            103, "Aman", "aman@gmail.com", "IT", 10000
+//    );
+
+//    payrollService.generatePayroll(e1);
+//    payrollService.generatePayroll(e2);
+
+//    Lesson: Exception Handling
+//    try {
+//        payrollService.generatePayroll(e2);
+//        System.out.println("Payroll generated successfully!");
+//    }catch (IllegalArgumentException e){
+//        System.out.println(" Error: "+ e.getMessage());
+//    }
+
+//    payrollService.generatePayroll(e3);
+
+//    payrollService.displayPayrollRecords();
+
+//    Lesson:Payroll + Notification Integration
+    SalaryCalculator calculator = new SalaryCalculator();
+
+    List<Notification> channels = new ArrayList<>();
+    channels.add(new EmailNotification());
+    channels.add(new SMSNotification());
+
+    NotificationService notificationService =
+            new NotificationService(channels);
+
+    PayrollService payrollService =
+            new PayrollService(calculator, notificationService);
+
+    payrollService.generatePayroll(e1);
+
+    try {
+        payrollService.generatePayroll(e1);
+    } catch (IllegalArgumentException e) {
+        System.out.println("Error: " + e.getMessage());
+    }
+}
+
+//phase 6
+//public void main(String[] args) {
 
 //    Lesson 4: NotificationService
 //    Notification email = new EmailNotification();
@@ -432,16 +591,16 @@ public  void main(String[] args) {
 //    service1.notifyEmployee("Salary credited!");
 //    service2.notifyEmployee("Attendance marked!");
 //    service3.notifyEmployee("Welcome!");
-
+//
 //    Lesson 5: Understanding DI
 //    NotificationService service = new NotificationService(new EmailNotification());
 //    service.notifyEmployee("Email Notification");
-
+//
 //    Lesson 6: OCP + DIP + Constructor DI.
 //    Notification push = new PushNotification();
 //    NotificationService service = new NotificationService(push);
 //    service.notifyEmployee("New Update Available");
-
+//
 //    Lesson 7: Multiple Notifications,
 //    List<Notification> channel = Arrays.asList(
 //            new EmailNotification(),
@@ -451,22 +610,20 @@ public  void main(String[] args) {
 //
 //    NotificationService service = new NotificationService(channel);
 //    service.notifyEmployee("Notification send In all platform");
-
+//
 //    Lesson 10: Integration Testing
-    List<Notification> channels = Arrays.asList(
-            new EmailNotification(),
-            new SMSNotification(),
-            new WhatsAppNotification()
-    );
-
-    NotificationService service = new NotificationService(channels);
-
-    service.notifyEmployee("Salary credited!");
-
-
-}
+//    List<Notification> channels = Arrays.asList(
+//            new EmailNotification(),
+//            new SMSNotification(),
+//            new WhatsAppNotification()
+//    );
+//
+//    NotificationService service = new NotificationService(channels);
+//
+//    service.notifyEmployee("Salary credited!");
+//
+//}
 //phase 5
-//Lesson 7: Claculate attandance summary.
 public void main() {
     AttendanceService service = new AttendanceService();
 
@@ -488,11 +645,12 @@ public void main() {
     service.attendanceSummary(101);
 }
 
+//Phase 1 ,2 3, 4
 //public  void main() {
 //
 // Testing: Phase 2
 //  Lessongs: Polymorphism
-
+//
 //    EmployeeService service = new EmployeeService();
 //
 //// Create employees
@@ -517,7 +675,7 @@ public void main() {
 //
 //// Display final list
 //    service.displayEmployees();
-
+//
 //Testing: phase 3
 //    Lessons: Runtime Polymorphism(refrence-> same, object->different, method override)
 //    Employee e1 = new PermanentEmployee(
@@ -535,7 +693,7 @@ public void main() {
 //    System.out.println(e1.calculateSalary());
 //    System.out.println(e2.calculateSalary());
 //    System.out.println(e3.calculateSalary());
-
+//
 //    lesson Polymorphism with ArrayList
 //    ArrayList<Employee> employees = new ArrayList<>();
 //
@@ -556,7 +714,7 @@ public void main() {
 //                emp.getName() + " Salary: " + emp.calculateSalary()
 //        );
 //    }
-
+//
 //    lesson: Integrate Employee Types with EmployeeService
 //    EmployeeService service = new EmployeeService();
 //
@@ -579,7 +737,7 @@ public void main() {
 //    );
 //
 //    service.displayEmployees();
-
+//
 //    Phase 4:
 //    lesson:SalaryCalculator Integration
 //    SalaryCalculator calculator = new SalaryCalculator();
