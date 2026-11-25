@@ -515,21 +515,133 @@ public class PayrollService {
 
 }
 
+public class ReportService {
 
+    private EmployeeService employeeService;
+    private AttendanceService attendanceService;
+    private PayrollService payrollService;
 
+    public ReportService(EmployeeService employeeService,AttendanceService attendanceService,
+    PayrollService payrollService) {
+
+        this.employeeService = employeeService;
+        this.attendanceService = attendanceService;
+        this.payrollService = payrollService;
+
+    }
+
+    public void generateEmployeeReport(){
+
+        List<Employee> employees = employeeService.getEmployeesDetails();
+        if(employees.isEmpty()){
+            System.out.println("No employee found!");
+            return;
+        }
+
+        for(Employee emp : employees){
+            System.out.printf("Employee ID: "+ emp.getEmployeeId());
+            System.out.println("Name: "+ emp.getName());
+            System.out.println("Emali: "+ emp.getEmail());
+            System.out.println("Department: "+ emp.getDepartment());
+            System.out.printf("-----------------------------------");
+        }
+    }
+    public void generateSalaryReport(){
+        List<Employee> employees = employeeService.getEmployeesDetails();
+        if(employees.isEmpty()){
+            System.out.println("No employee found!");
+            return;
+        }
+        for(Employee emp : employees){
+            System.out.println("Name: "+ emp.getName());
+            System.out.println("Salary: "+ emp.calculateSalary());
+        }
+    }
+    public void generateDepartmentReport(String department) {
+
+        List<Employee> employees = employeeService.getEmployeesDetails();
+
+        if (employees.isEmpty()) {
+            System.out.println("No employee found!");
+            return;
+        }
+
+        boolean found = false;
+
+        for (Employee emp : employees) {
+            if (department.equalsIgnoreCase(emp.getDepartment())) {
+
+                System.out.println("Employee ID: " + emp.getEmployeeId());
+                System.out.println("Name: " + emp.getName());
+
+                found = true;
+            }
+        }
+        if (!found) {
+            System.out.println("No employees found in this department!");
+        }
+    }
+
+    public void generateAttendanceReport(int employeeId){
+        Employee emp = employeeService.searchEmployee(employeeId);
+        if(emp == null){
+            System.out.println("Employee not found");
+            return;
+        }
+        attendanceService.attendanceSummary(emp.getEmployeeId());
+    }
+
+    public void generatePayrollReport() {
+        payrollService.displayPayrollRecords();
+    }
+}
+
+//phase 8
+public void main(){
+    EmployeeService employeeService = new EmployeeService();
+    AttendanceService attendanceService = new AttendanceService();
+    SalaryCalculator calculator = new SalaryCalculator();
+
+    List<Notification> channels = Arrays.asList(
+            new EmailNotification(),
+            new SMSNotification()
+    );
+    NotificationService notificationService =
+            new NotificationService(channels);
+
+    PayrollService payrollService =
+            new PayrollService(calculator, notificationService);
+
+    ReportService reportService =
+            new ReportService(
+                    employeeService,
+                    attendanceService,
+                    payrollService
+            );
+
+    reportService.generateEmployeeReport();
+
+    reportService.generateSalaryReport();
+
+    reportService.generateDepartmentReport("IT");
+
+    reportService.generateAttendanceReport(101);
+
+    reportService.generatePayrollReport();
+}
 //phase 7
-public void main(String[] args){
+//public void main(String[] args){
 //    SalaryCalculator calculator = new SalaryCalculator();
 //
 //    PayrollService payrollService =
 //            new PayrollService(calculator);
 //
-    Employee e1 = new PermanentEmployee(
-            101, "Rahul", "rahul@gmail.com", "IT", 30000
-    );
-    Employee e2 = new PermanentEmployee(
-            101, "Rahul", "rahul@gmail.com", "IT", 30000
-    );
+//    Employee e1 = new PermanentEmployee(
+//            101, "Rahul", "rahul@gmail.com", "IT", 30000
+//    );
+//    Employee e2 = new PermanentEmployee(
+//            101, "Rahul", "rahul@gmail.com", "IT", 30000
+//    );
 
 //    Employee e2 = new ContractEmployee(
 //            102, "Priya", "priya@gmail.com", "HR", 160, 200
@@ -555,26 +667,26 @@ public void main(String[] args){
 //    payrollService.displayPayrollRecords();
 
 //    Lesson:Payroll + Notification Integration
-    SalaryCalculator calculator = new SalaryCalculator();
-
-    List<Notification> channels = new ArrayList<>();
-    channels.add(new EmailNotification());
-    channels.add(new SMSNotification());
-
-    NotificationService notificationService =
-            new NotificationService(channels);
-
-    PayrollService payrollService =
-            new PayrollService(calculator, notificationService);
-
-    payrollService.generatePayroll(e1);
-
-    try {
-        payrollService.generatePayroll(e1);
-    } catch (IllegalArgumentException e) {
-        System.out.println("Error: " + e.getMessage());
-    }
-}
+//    SalaryCalculator calculator = new SalaryCalculator();
+//
+//    List<Notification> channels = new ArrayList<>();
+//    channels.add(new EmailNotification());
+//    channels.add(new SMSNotification());
+//
+//    NotificationService notificationService =
+//            new NotificationService(channels);
+//
+//    PayrollService payrollService =
+//            new PayrollService(calculator, notificationService);
+//
+//    payrollService.generatePayroll(e1);
+//
+//    try {
+//        payrollService.generatePayroll(e1);
+//    } catch (IllegalArgumentException e) {
+//        System.out.println("Error: " + e.getMessage());
+//    }
+//}
 
 //phase 6
 //public void main(String[] args) {
@@ -624,26 +736,26 @@ public void main(String[] args){
 //
 //}
 //phase 5
-public void main() {
-    AttendanceService service = new AttendanceService();
-
-    service.markAttendance(
-            new Attendance(101, LocalDate.of(2026, 11, 20),
-                    AttendanceStatus.PRESENT)
-    );
-
-    service.markAttendance(
-            new Attendance(101, LocalDate.of(2026, 11, 21),
-                    AttendanceStatus.ABSENT)
-    );
-
-    service.markAttendance(
-            new Attendance(101, LocalDate.of(2026, 11, 22),
-                    AttendanceStatus.PRESENT)
-    );
-
-    service.attendanceSummary(101);
-}
+//public void main() {
+//    AttendanceService service = new AttendanceService();
+//
+//    service.markAttendance(
+//            new Attendance(101, LocalDate.of(2026, 11, 20),
+//                    AttendanceStatus.PRESENT)
+//    );
+//
+//    service.markAttendance(
+//            new Attendance(101, LocalDate.of(2026, 11, 21),
+//                    AttendanceStatus.ABSENT)
+//    );
+//
+//    service.markAttendance(
+//            new Attendance(101, LocalDate.of(2026, 11, 22),
+//                    AttendanceStatus.PRESENT)
+//    );
+//
+//    service.attendanceSummary(101);
+//}
 
 //Phase 1 ,2 3, 4
 //public  void main() {
