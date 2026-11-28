@@ -1,8 +1,10 @@
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.*;
 import java.time.LocalDate;
 import java.time.YearMonth;
+
 
 
 
@@ -16,6 +18,10 @@ class Employee {
     private String department;
 
     public Employee(int employeeId, String name, String email, String department){
+
+        if(employeeId <=0 || name == null || name.isBlank()){
+            throw new IllegalArgumentException("Not valid inputs");
+        }
         this.employeeId = employeeId;
         this.name = name;
         this.email = email;
@@ -106,6 +112,14 @@ class EmployeeService{
 
     public boolean updateDepartment(int employeeId, String newDepartment) {
 
+
+        if (employeeId <= 0) {
+            throw new IllegalArgumentException("Invalid employee ID");
+        }
+
+        if (newDepartment == null || newDepartment.isBlank()) {// rejects Space-only stirngs.
+            throw new IllegalArgumentException("Department cannot be empty");
+        }
         Employee emp = searchEmployee(employeeId);
 
         if (emp == null) {
@@ -450,12 +464,16 @@ public class Payroll {
 
 public class PayrollService {
 
-    private SalaryCalculator salaryCalculator;
-    private List<Payroll> payrollRecords;
-    private NotificationService notificationService;
+    private final SalaryCalculator salaryCalculator;
+    private final List<Payroll> payrollRecords;
+    private final NotificationService notificationService;
 
 
     public PayrollService(SalaryCalculator salaryCalculator,NotificationService notificationService) {
+
+        if (salaryCalculator == null || notificationService == null) {
+            throw new IllegalArgumentException("Dependencies cannot be null");
+        }
         this.salaryCalculator = salaryCalculator;
         this.payrollRecords = new ArrayList<>();
         this.notificationService = notificationService;
@@ -464,6 +482,7 @@ public class PayrollService {
 
     public Payroll generatePayroll(Employee employee) {
 
+//        Exception Handling Audit
         if (employee == null) {
             throw new IllegalArgumentException("Employee not valid");
         }
@@ -517,13 +536,16 @@ public class PayrollService {
 
 public class ReportService {
 
-    private EmployeeService employeeService;
-    private AttendanceService attendanceService;
-    private PayrollService payrollService;
+    private final EmployeeService employeeService;
+    private final AttendanceService attendanceService;
+    private final PayrollService payrollService;
 
     public ReportService(EmployeeService employeeService,AttendanceService attendanceService,
     PayrollService payrollService) {
 
+        if ( employeeService== null || attendanceService == null || payrollService== null) {
+            throw new IllegalArgumentException("Dependencies cannot be null");
+        }
         this.employeeService = employeeService;
         this.attendanceService = attendanceService;
         this.payrollService = payrollService;
@@ -596,22 +618,93 @@ public class ReportService {
     }
 }
 
+
+public interface ReportGenerator {
+    void generate();
+}
+public class HTMLReportGenerator implements ReportGenerator {
+
+    @Override
+    public void generate() {
+        System.out.println("Generating HTML Report...");
+    }
+}
+
+
+
 //phase 8
 public void main(){
-    EmployeeService employeeService = new EmployeeService();
-    AttendanceService attendanceService = new AttendanceService();
-    SalaryCalculator calculator = new SalaryCalculator();
+//    EmployeeService employeeService = new EmployeeService();
+//    AttendanceService attendanceService = new AttendanceService();
+//    SalaryCalculator calculator = new SalaryCalculator();
+//
+//    List<Notification> channels = Arrays.asList(
+//            new EmailNotification(),
+//            new SMSNotification()
+//    );
+//    NotificationService notificationService =
+//            new NotificationService(channels);
+//
+//    PayrollService payrollService =
+//            new PayrollService(calculator, notificationService);
+//
+//    ReportService reportService =
+//            new ReportService(
+//                    employeeService,
+//                    attendanceService,
+//                    payrollService
+//            );
+//
+//    reportService.generateEmployeeReport();
+//
+//    reportService.generateSalaryReport();
+//
+//    reportService.generateDepartmentReport("IT");
+//
+//    reportService.generateAttendanceReport(101);
+//
+//    reportService.generatePayrollReport();
 
-    List<Notification> channels = Arrays.asList(
-            new EmailNotification(),
-            new SMSNotification()
+    EmployeeService employeeService = new EmployeeService();
+
+// 1. First add employees
+        Employee e1 = new PermanentEmployee(
+            101, "Rahul", "rahul@gmail.com", "IT", 30000
     );
+
+
+    Employee e2 = new ContractEmployee(
+            102, "Priya", "priya@gmail.com", "HR", 160, 200
+    );
+
+    Employee e3 = new InternEmployee(
+            103, "Aman", "aman@gmail.com", "IT", 10000
+    );
+    employeeService.addEmployee(e1);
+    employeeService.addEmployee(e2);
+    employeeService.addEmployee(e3);
+
+// 2. Create other services
+    SalaryCalculator calculator = new SalaryCalculator();
+    List<Notification> channels = new ArrayList<>();
+
+    channels.add(new EmailNotification());
+    channels.add(new SMSNotification());
+    channels.add(new WhatsAppNotification());
+
     NotificationService notificationService =
             new NotificationService(channels);
+
+    AttendanceService attendanceService = new AttendanceService();
 
     PayrollService payrollService =
             new PayrollService(calculator, notificationService);
 
+// 3. Generate payroll records
+    payrollService.generatePayroll(e1);
+    payrollService.generatePayroll(e2);
+
+// 4. Inject the SAME service objects
     ReportService reportService =
             new ReportService(
                     employeeService,
@@ -619,14 +712,11 @@ public void main(){
                     payrollService
             );
 
+// 5. Generate reports
     reportService.generateEmployeeReport();
-
     reportService.generateSalaryReport();
-
     reportService.generateDepartmentReport("IT");
-
     reportService.generateAttendanceReport(101);
-
     reportService.generatePayrollReport();
 }
 //phase 7
